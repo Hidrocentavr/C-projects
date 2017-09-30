@@ -111,23 +111,24 @@ struct Point
     void Input(Point &point)
     {
         cout << "Тип кинематической пары (0 - поступательная, 1 - вращательная): ";
-        cin >> point.type >> endl;
+        cin >> point.type;
         if (point.type == 0)
         {
             cout << "Введите параметры Денавита-Хартенберга:" << endl;
-            cout << "Параметр q = "; cin >> point.q >> endl;
-            cout << "Параметр alpha = "; cin >> point.alpha >> endl;
-            cout << "Параметр a = "; cin >> point.a >> endl;
-            point.d = -1; //-1 - обобщённая координата
+            cout << "Параметр q = "; cin >> point.q;
+            cout << "Параметр alpha = "; cin >> point.alpha;
+            cout << "Параметр a = "; cin >> point.a;
+            cout << "Параметр d - обобщённая координата"; point.d = -1;
         }
         else
         {
             cout << "Введите параметры Денавита-Хартенберга (если параметр" << endl;
-            cout << "Параметр alpha = "; cin >> point.alpha >> endl;
-            cout << "Параметр a = "; cin >> point.a >> endl;
-            cout << "Параметр d = "; cin >> point.d >> endl;
-            point.q = -1; //-1 - обобщённая координата
+            cout << "Параметр q - обобщённая координата"; point.q = -1;
+            cout << "Параметр alpha = "; cin >> point.alpha;
+            cout << "Параметр a = "; cin >> point.a;
+            cout << "Параметр d = "; cin >> point.d;
         }
+        cout << endl;
     }
 };
 
@@ -138,10 +139,12 @@ class List
     Point *Tail;
 
 public:
+
+    int NumberOfPoints = 0;
+
     List()
     {
         Head = NULL;
-        Head->Next = Tail;
         Tail = NULL;
     }
 
@@ -188,11 +191,17 @@ public:
 
         while (temp != NULL)
         {
-            cout << temp->type << endl;
-            cout << temp->a << endl;
-            cout << temp->alpha << endl;
-            cout << temp->d << endl;
-            cout << temp->q << endl;
+            cout << (temp->type == 0 ? "Поступательная" : "Вращательная") << " кинематическая пара";
+            if (temp->q == -1)
+                cout << "Параметр q - обобщённая координата" << endl;
+            else
+                cout << "Параметр q = " << temp->q << endl;
+            cout << "Параметр alpha = " << temp->alpha << endl;
+            cout << "Параметр a = " << temp->a << endl;
+            if (temp->d == -1)
+                cout << "Параметр d - обобщённая координата" << endl;
+            else
+                cout << "Параметр d = " << temp->d << endl;
 
             temp = temp->Next;
         }
@@ -219,7 +228,8 @@ public:
         {
             temp = temp->Next;
             n--;
-            if (temp=NULL) return;
+            if (!temp)
+                return;
         }
         while (n != 2);
 
@@ -232,14 +242,87 @@ public:
     }
 };
 
+void SayHello()
+{
+    cout << "Привет!" << endl;
+    cout << "Ты запустил программу для решения прямой кинематической задачи манипулятора." << endl;
+    cout << "Ниже ты видишь меню, чтобы сделать выбор просто введи номер пункта." << endl;
+    cout << "Например, если ты хочешь добавить новое звено манипулятору, то вводи 1." << endl;
+    cout << "Удачи!" << endl;
+    cout << endl;
+}
+
+void ShowMenu()
+{
+    cout << "МЕНЮ" << endl;
+    cout << "==================================================" << endl;
+    cout << "1. Добавить новое звено" << endl;
+    cout << "2. Удалить звено" << endl;
+    cout << "3. Вывести список звеньев на экран" << endl;
+    cout << "4. Решить прямую кинематическую задачу о положении" << endl;
+    cout << "5. Решить прямую кинематическую задачу о скорости" << endl;
+    cout << "6. Выход из программы" << endl;
+    cout << "? - вывести меню на экран" << endl;
+    cout << "==================================================" << endl;
+}
+
+void Menu()
+{
+    char number;
+
+    cout << "Твой выбор: "; cin >> number;
+
+    switch (number)
+    {
+    case '1':
+        manipulator.NumberOfPoints++;
+        Point point;
+        cout << "Звено " << manipulator.NumberOfPoints << endl;
+        point.Input(point);
+        manipulator.Add(point);
+        cout << endl << "Звено успешно добавлено!" << endl;
+        break;
+    case '2':
+        manipulator.NumberOfPoints--;
+        int n;
+        cout << "Введите номер звена: "; cin >> n;
+        manipulator.Delete(n);
+        cout << endl << "Звено успешно удалено!" << endl;
+        break;
+    case '3':
+        manipulator.Show();
+        break;
+    case '4':
+        cout << "Данный пункт меню находится в разработке." << endl;
+        break;
+    case '5':
+        cout << "Данный пункт меню находится в разработке." << endl;
+        break;
+    case '6':
+        exit(0);
+    case '?':
+        ShowMenu();
+        break;
+    default:
+        cout << "Ошибка!" << endl;
+        break;
+    }
+    cout << endl;
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     setlocale(0, "");
 
-    cout << "Hello world!" << endl;
-    manipulator::input();
-    cout << "The end!" << endl;
+    List manipulator;
 
+    SayHello();
+    ShowMenu();
+
+    while(true)
+    {
+        Menu();
+    }
     return a.exec();
 }
