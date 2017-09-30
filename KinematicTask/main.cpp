@@ -116,11 +116,14 @@ struct Point
 class List
 {
     Point *Head;
+    Point *Tail;
 
 public:
     List()
     {
         Head = NULL;
+        Head->Next = Tail;
+        Tail = NULL;
     }
 
     ~List()
@@ -133,10 +136,14 @@ public:
         }
     }
 
+    bool Empty()
+    {
+        return (Head == NULL);
+    }
+
     void Add(Point &point)
     {
         Point *temp = new Point;
-        temp->Next = Head;
 
         temp->type = point.type;
         temp->a = point.a;
@@ -144,7 +151,16 @@ public:
         temp->d = point.d;
         temp->q = point.q;
 
-        Head = temp;
+        if (List::Empty())
+        {
+            Head = temp;
+        }
+        else
+        {
+            Tail->Next = temp;
+        }
+        temp->Next = NULL;
+        Tail = temp;
     }
 
     void Show()
@@ -163,9 +179,32 @@ public:
         }
     }
 
-    void Remove()
+    void Delete(int n)
     {
-        Po
+        if (Head == Tail)
+        {
+            List();
+            return;
+        }
+
+        Point *temp = Head;
+        while (n != 1)
+        {
+            temp = temp->Next;
+            n--;
+            if (temp=NULL) return;
+        }
+        if (temp == Tail)
+        {
+
+        }
+        if (temp == Head)
+        {
+            Head = temp->Next;
+            delete temp;
+        }
+        temp->Next = temp->Next->Next;
+        delete temp->Next;
     }
 };
 
