@@ -36,7 +36,7 @@ public:
             return q;
         }
     };
-};*/
+};
 
 //манипулятор
 class Manipulator
@@ -79,7 +79,7 @@ public:
             }
         }
     }
-};
+};*/
 
 /*//Решатель
 class RobotArmSolver
@@ -106,10 +106,29 @@ struct Point
     float alpha;
     float a;
     float d;
-
-    void Input(Point &point);
-
     Point *Next;
+
+    void Input(Point &point)
+    {
+        cout << "Тип кинематической пары (0 - поступательная, 1 - вращательная): ";
+        cin >> point.type >> endl;
+        if (point.type == 0)
+        {
+            cout << "Введите параметры Денавита-Хартенберга:" << endl;
+            cout << "Параметр q = "; cin >> point.q >> endl;
+            cout << "Параметр alpha = "; cin >> point.alpha >> endl;
+            cout << "Параметр a = "; cin >> point.a >> endl;
+            point.d = -1; //-1 - обобщённая координата
+        }
+        else
+        {
+            cout << "Введите параметры Денавита-Хартенберга (если параметр" << endl;
+            cout << "Параметр alpha = "; cin >> point.alpha >> endl;
+            cout << "Параметр a = "; cin >> point.a >> endl;
+            cout << "Параметр d = "; cin >> point.d >> endl;
+            point.q = -1; //-1 - обобщённая координата
+        }
+    }
 };
 
 /*РАБОТА СО СПИСКАМИ ЗВЕНЬЕВ*/
@@ -181,29 +200,34 @@ public:
 
     void Delete(int n)
     {
+        Point *temp = Head;
+
         if (Head == Tail)
         {
             List();
             return;
         }
 
-        Point *temp = Head;
-        while (n != 1)
+        if (n == 1)
+        {
+            Head = temp->Next;
+            delete temp;
+            return;
+        }
+
+        do
         {
             temp = temp->Next;
             n--;
             if (temp=NULL) return;
         }
-        if (temp == Tail)
-        {
+        while (n != 2);
 
-        }
-        if (temp == Head)
+        if (temp->Next != Tail)
         {
-            Head = temp->Next;
-            delete temp;
+            temp->Next = temp->Next->Next;
         }
-        temp->Next = temp->Next->Next;
+
         delete temp->Next;
     }
 };
