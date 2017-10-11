@@ -13,6 +13,7 @@ float abs(float x);
 #include <stdlib.h>
 #include <string>
 #include <fstream>
+#include <iostream>
 
 //интерфейс логгера
 class logger //абстрактный класс, так как имеется виртуальный метод
@@ -45,7 +46,7 @@ class filelogger : public logger
 {
 
 public:
-    filelogger(const std::string &filename)
+    filelogger(const std::string &fileName)
     {
         _file.open(fileName);
     }
@@ -100,12 +101,12 @@ class Base
     //virtual - явное разрешение на переопределение методов
     virtual void method1()
     {
-        cout << "Base method 1" << endl;
+        std::cout << "Base method 1" << std::endl;
     }
 
     virtual void method2()
     {
-        cout << "Base method 2" << endl;
+        std::cout << "Base method 2" << std::endl;
     }
 
     virtual void method3() = 0; //чисто виртуальный метод
@@ -119,7 +120,7 @@ class Der1 : public Base
     void method1() override
     {
         Base::method1(); //явный вызов метода method1 базового класса
-        cout << "Der method1" << endl;
+        std::cout << "Der method1" << std::endl;
     }
 };
 
@@ -129,7 +130,7 @@ class Der2 : public Base
     void method2() override
     {
         Base::method2(); //явный вызов метода method2 базового класса
-        cout << "Der method2" << endl;
+        std::cout << "Der method2" << std::endl;
     }
 };
 
