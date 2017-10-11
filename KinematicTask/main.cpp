@@ -43,19 +43,19 @@ public:
 class Matrix
 {
 private:
+
+public:
     int rows_, cols_;
     double* data_;
 
-public:
-    Matrix(int rows, int cols); //конструктор 1
-    Matrix(const Matrix& m);    //конструктор 2
+    Matrix(int rows, int cols); //конструктор прямоугольной матрицы
+    Matrix(int n);              //конструктор кавдратной матрицы
     ~Matrix();                  //деструктор
 
-    double& operator() (int row, int col);          //перегрузка оператора ()
-    double  operator() (int row, int col) const;    //перегрузка оператора ()
-    Matrix& operator= (const Matrix& m);            //перегрузка оператора =
-    Matrix& operator+ (const Matrix& m);            //перегрузка оператора +
-    Matrix& operator* (const Matrix& m);            //перегрузка оператора *
+    double& operator() (int row, int col);    //перегрузка оператора ()
+    Matrix& operator= (Matrix& m);            //перегрузка оператора =
+    Matrix& operator+ (Matrix& m);            //перегрузка оператора +
+    Matrix& operator* (Matrix& m);            //перегрузка оператора *
 
     void show();
 };
@@ -237,58 +237,58 @@ Matrix::Matrix(int rows, int cols) : rows_ (rows), cols_ (cols)
 {
     if (rows == 0 || cols == 0)
         cout << "Matrix constructor has 0 size" << endl;
-    data_ = new double[rows * cols];
+    this->data_ = new double[rows * cols];
+}
+
+inline
+Matrix::Matrix(int n) : rows_ (n), cols_ (n)
+{
+    if (n == 0)
+        cout << "Matrix constructor has 0 size" << endl;
+    this->data_ = new double[n * n];
 }
 
 inline
 Matrix::~Matrix()
 {
-    delete[] data_;
-
+    delete[] this->data_;
 }
 
 inline
-double& Matrix::operator() (int row, int col)
+Matrix& Matrix::operator= (Matrix& m)
 {
-    if (row >= rows_ || col >= cols_)
-        cout << "Matrix subscript out of bounds" << endl;
-    return data_[cols_*row + col];
+    for(int i = 0; i < this->rows_; i++)
+        for(int j = 0; j < this->cols_; j++)
+            this->data_[this->cols_*i+j] = m.data_[this->cols_*i+j];
+    return *this;
 }
 
-inline
-double Matrix::operator() (int row, int col) const
+Matrix& Matrix::operator+ (Matrix& m)
 {
-    if (row >= rows_ || col >= cols_)
-        cout << "const Matrix subscript out of bounds" << endl;
-    return data_[cols_*row + col];
-}
-
-Matrix& Matrix::operator+ (const Matrix& m)
-{
-    Matrix tmp(rows_, cols_);
-    for(int i = 0; i < rows_; i++)
-        for(int j = 0; j < cols_; j++)
-            tmp[cols_*i+j] = data_[cols_*i+j] + m[m.cols_*i+j];
+    Matrix tmp(m.rows_, m.cols_);
+    for(int i = 0; i < this->rows_; i++)
+        for(int j = 0; j < this->cols_; j++)
+            tmp.data_[this->cols_*i+j] = this->data_[this->cols_*i+j] + m.data_[this->cols_*i+j];
     return tmp;
 }
 
-Matrix& Matrix::operator* (const Matrix& m)
+Matrix& Matrix::operator* (Matrix& m)
 {
-    Matrix tmp(rows_, m.cols_);
-    for(int i = 0; i < rows_; i++)
+    Matrix tmp(this->rows_, m.cols_);
+    for(int i = 0; i < this->rows_; i++)
         for(int j = 0; j < m.cols_; j++)
-            for(int k = 0; k < cols_; k++)
-                tmp[tmp.cols_*i+j] += data_[cols_*i+k] * m[m.cols_*k+j];
+            for(int k = 0; k < this->cols_; k++)
+                tmp.data_[tmp.cols_*i+j] += this->data_[this->cols_*i+k] * m.data_[m.cols_*k+j];
     return tmp;
 }
 
 inline
 void Matrix::show()
 {
-    for(int i = 0; i < rows_; i++)
+    for(int i = 0; i < this->rows_; i++)
     {
-        for(int j = 0; j < cols_; j++)
-           cout << data_[cols_*i+j] << " ";
+        for(int j = 0; j < this->cols_; j++)
+           cout << this->data_[this->cols_*i+j] << " ";
         cout << endl;
     }
 }
