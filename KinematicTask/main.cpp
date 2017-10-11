@@ -24,7 +24,7 @@ struct Sensor
 {
     int data[10] = {0};
 
-    void Input(Sensor encoder, List mp);   //метод для получения данных с датчиков
+    //    void Input(Sensor encoder, List mp);   //метод для получения данных с датчиков
 };
 
 //списки
@@ -45,8 +45,8 @@ public:
     void Show();                //метод для отображения списка
     Point *Search(int n);       //поиск элемента в списке по номеру
     void Delete(int n);         //метод для удаления элемента из списка по номеру
-    Matrix& AMatrix(float q, float alpha, float a, float d); //матрица переноса A
-    Matrix& Solver(Sensor encoder); //решатель
+    Matrix *AMatrix(float q, float alpha, float a, float d); //матрица переноса A
+    Matrix *Solver(Sensor encoder); //решатель
 };
 
 //матрицы
@@ -118,17 +118,6 @@ void Point::Input(Point &point)
         cout << "Параметр a = "; cin >> point.a;
         cout << "Параметр d = "; cin >> point.d;
     }
-}
-
-//-------
-//ДАТЧИКИ
-//-------
-inline
-void Sensor::Input(Sensor encoder, List mp)
-{
-    cout << "Введите обобщённые координаты";
-    for (int i = 0; i < mp.NumberOfPoints; i++)
-        cout << "Звено " << i << ":"; cin >> encoder.data[i];
 }
 
 //------
@@ -270,12 +259,14 @@ Matrix& List::Solver(Sensor encoder)
 
     Point *temp = Head;
 
+    cout << "Введите обобщённые координаты";
     for (int i = 0; temp != NULL; i++)
     {
+        cout << "Звено " << i << ":";
         if (temp->type == 1)
-            temp->q = encoder.data[i];
+            temp->q = cin >> encoder.data[i];
         else
-            temp->d = encoder.data[i];
+            temp->d = cin >> encoder.data[i];
 
         T = T * AMatrix(temp->q, temp->alpha, temp->a, temp->d);
         temp = temp->Next;
@@ -417,7 +408,6 @@ void Menu()
         break;
     case '4':
         Sensor encoder;
-        encoder.Input(encoder, manipulator);
         manipulator.Solver(encoder);
         cout << "Матрица T успешно вычислена!" << endl;
         break;
@@ -561,4 +551,16 @@ public:
         T = q; //вычисление матрицы
         return T;
     }
-};*/
+};
+
+//-------
+//ДАТЧИКИ
+//-------
+inline
+void Sensor::Input(Sensor encoder, List mp)
+{
+    cout << "Введите обобщённые координаты";
+    for (int i = 0; i < mp.NumberOfPoints; i++)
+        cout << "Звено " << i << ":"; cin >> encoder.data[i];
+}
+*/
