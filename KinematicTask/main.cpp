@@ -37,6 +37,8 @@ public:
     void Show();                //метод для отображения списка
     Point *Search(int n);       //поиск элемента в списке по номеру
     void Delete(int n);         //метод для удаления элемента из списка по номеру
+    Matrix& AMatrix(float q, float alpha, float a, float d); //матрица переноса A
+    Matrix& Solver(Sensor encoder); //решатель
 };
 
 //матрицы
@@ -221,12 +223,46 @@ void List::Delete(int n)
         delete temp->Next;
         temp->Next = element.Next;
     }
-   /* else
+    /* else
     {
         element = temp->Next;
         delete element;
         temp->Next = NULL;
     }*/
+}
+
+Matrix& List::AMatrix(float q, float alpha, float a, float d)
+{
+    Matrix A(4);
+    A.data_ =
+    {
+        {cos(q), -cos(alpha)*sin(q), sin(alpha)*sin(q), a*cos(q)},
+        {sin(q), cos(alpha)*cos(q), -sin(alpha)*cos(q), a*sin(q)},
+        {0, sin(aplha), cos(alpha), d},
+        {0, 0, 0, 1}
+    };
+    return A;
+}
+
+Matrix& List::Solver(Sensor encoder)
+{
+    Matrix T(4);
+    T.data_ = 1;
+
+    Point *temp = Head;
+
+    for (int i = 0; temp != NULL; i++)
+    {
+        if (temp->type == 1)
+            temp->q = encoder.data[i];
+        else
+            temp->d = encoder.data[i];
+
+        T = T * AMatrix(temp->q, temp->alpha, temp->a, temp->d);
+        temp = temp->Next;
+    }
+
+    return T;
 }
 
 //-------
@@ -263,6 +299,17 @@ Matrix& Matrix::operator= (Matrix& m)
     return *this;
 }
 
+inline
+Matrix& Matrix::operator= (int k)
+{
+    this->data_ = {0};
+    for(int i = 0, j = 0; i < this->rows_; i++, j++)
+    {
+        this->data_[this->cols_*i+j] = k;
+    }
+    return *this;
+}
+
 Matrix& Matrix::operator+ (Matrix& m)
 {
     Matrix tmp(m.rows_, m.cols_);
@@ -288,7 +335,7 @@ void Matrix::show()
     for(int i = 0; i < this->rows_; i++)
     {
         for(int j = 0; j < this->cols_; j++)
-           cout << this->data_[this->cols_*i+j] << " ";
+            cout << this->data_[this->cols_*i+j] << " ";
         cout << endl;
     }
 }
