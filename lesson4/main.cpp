@@ -10,23 +10,41 @@ float abs(float x);
 #include <math.h>
 #include <stdlib.h>
 
+using namespace std;
+
 //базовый класс
 class Base
 {
-    void method1();
-    void method2();
+    //virtual - явное разрешение на переопределение методов
+    virtual void method1()
+    {
+        cout << "Base method 1" << endl;
+    }
+
+    virtual void method2()
+    {
+        cout << "Base method 2" << endl;
+    }
 };
 
 //класс наследник 1
 class Der1 : public Base
 {
-
+    void method1() override
+    {
+        Base::method1(); //явный вызов метода method1 базового класса
+        cout << "Der method1" << endl;
+    }
 };
 
 //класс наследник 2
 class Der2 : public Base
 {
-
+    void method2() override
+    {
+        Base::method2(); //явный вызов метода method2 базового класса
+        cout << "Der method2" << endl;
+    }
 };
 
 void polymorth(Base *x)
