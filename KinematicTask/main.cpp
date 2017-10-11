@@ -14,55 +14,55 @@ struct Point
     float alpha;
     float a;
     float d;
-    Point *Next;
+    Point *Next;                //указатель на следующий элемент списка
 
-    void Input(Point &point);
+    void Input(Point &point);   //метод для ввода параметров звена
 };
 
 //списки
 class List
 {
 protected:
-    Point *Head;
-    Point *Tail;
+    Point *Head;                //голова списка (первый элемент)
+    Point *Tail;                //хвост списка (последний элемент)
 
 public:
     int NumberOfPoints = 0;
 
-    List();
-    ~List();
+    List();                     //конструктор
+    ~List();                    //деструктор
 
-    bool Empty();
-    void Add(Point &point);
-    void Show();
-    Point Search(int n);
-    void Delete(int n);
+    bool Empty();               //проверка списка на заполненность (true - если список пуст)
+    void Add(Point &point);     //метод для добавления нового звена в список
+    void Show();                //метод для отображения списка
+    Point *Search(int n);       //поиск элемента в списке по номеру
+    void Delete(int n);         //метод для удаления элемента из списка по номеру
 };
 
 //матрицы
 class Matrix
 {
 private:
-    unsigned rows_, cols_;
+    int rows_, cols_;
     double* data_;
 
 public:
-    Matrix(unsigned rows, unsigned cols);
-    Matrix(const Matrix& m);
-    ~Matrix();
+    Matrix(int rows, int cols); //конструктор 1
+    Matrix(const Matrix& m);    //конструктор 2
+    ~Matrix();                  //деструктор
 
-    double& operator() (unsigned row, unsigned col);        // Subscript operators often come in pairs
-    double  operator() (unsigned row, unsigned col) const;  // Subscript operators often come in pairs
-    Matrix& operator= (const Matrix& m);                    // Assignment operator
-    Matrix operator+(Matrix obj);
-    Matrix operator*(Matrix obj);
+    double& operator() (int row, int col);          //перегрузка оператора ()
+    double  operator() (int row, int col) const;    //перегрузка оператора ()
+    Matrix& operator= (const Matrix& m);            //перегрузка оператора =
+    Matrix& operator+ (const Matrix& m);            //перегрузка оператора +
+    Matrix& operator* (const Matrix& m);            //перегрузка оператора *
 
     void show();
 };
 
-void SayHello();//приветствие
-void ShowMenu();//описание меню
-void Menu();//реализация меню
+void SayHello();                //приветствие
+void ShowMenu();                //описание меню
+void Menu();                    //реализация меню
 
 /*=============== ГЛАВНАЯ ФУНКЦИЯ ===============*/
 
@@ -184,7 +184,7 @@ void List::Show()
     }
 }
 
-Point List::Search(int n)
+Point* List::Search(int n)
 {
     Point *temp = Head;
     while(n > 1)
@@ -192,41 +192,48 @@ Point List::Search(int n)
         temp = temp->Next;
         n--;
     }
-    return *temp;
+    return temp;
 }
 
 void List::Delete(int n)
 {
-    Point *temp = Head;
+    Point *temp = Head, element;
 
     if (Head == Tail)
     {
-        delete temp;
+        Head = NULL;
+        Tail = NULL;
         return;
     }
 
     if (n == 1)
     {
+        delete Head;
         Head = temp->Next;
-        delete temp;
         return;
     }
 
-    //temp = List.Search(n-1);
+    temp = Search(n-1);
 
     if (temp->Next != Tail)
     {
-        temp->Next = temp->Next->Next;
+        element.Next = temp->Next->Next;
+        delete temp->Next;
+        temp->Next = element.Next;
     }
-
-    delete temp->Next;
+   /* else
+    {
+        element = temp->Next;
+        delete element;
+        temp->Next = NULL;
+    }*/
 }
 
 //-------
 //МАТРИЦЫ
 //-------
 inline
-Matrix::Matrix(unsigned rows, unsigned cols) : rows_ (rows), cols_ (cols)
+Matrix::Matrix(int rows, int cols) : rows_ (rows), cols_ (cols)
 {
     if (rows == 0 || cols == 0)
         cout << "Matrix constructor has 0 size" << endl;
@@ -237,10 +244,11 @@ inline
 Matrix::~Matrix()
 {
     delete[] data_;
+
 }
 
 inline
-double& Matrix::operator() (unsigned row, unsigned col)
+double& Matrix::operator() (int row, int col)
 {
     if (row >= rows_ || col >= cols_)
         cout << "Matrix subscript out of bounds" << endl;
@@ -248,42 +256,42 @@ double& Matrix::operator() (unsigned row, unsigned col)
 }
 
 inline
-double Matrix::operator() (unsigned row, unsigned col) const
+double Matrix::operator() (int row, int col) const
 {
     if (row >= rows_ || col >= cols_)
         cout << "const Matrix subscript out of bounds" << endl;
     return data_[cols_*row + col];
 }
 
-/*Matrix Matrix::operator+(Matrix obj)
+Matrix& Matrix::operator+ (const Matrix& m)
 {
-    Matrix tmp(0);
-    for(int i = 0; i < n; i++)
-        for(int j = 0; j < n; j++)
-            tmp[i][j] = matr[i][j] + obj[i][j];
+    Matrix tmp(rows_, cols_);
+    for(int i = 0; i < rows_; i++)
+        for(int j = 0; j < cols_; j++)
+            tmp[cols_*i+j] = data_[cols_*i+j] + m[m.cols_*i+j];
     return tmp;
-}*/
+}
 
-/*Matrix Matrix::operator*(Matrix obj)
+Matrix& Matrix::operator* (const Matrix& m)
 {
-    Matrix tmp(0);
-    for(int i = 0; i < n; i++)
-        for(int j = 0; j < n; j++)
-            for(int k = 0; k < n; k++)
-                tmp[i][j] += matr[i][k] * obj[k][j];
+    Matrix tmp(rows_, m.cols_);
+    for(int i = 0; i < rows_; i++)
+        for(int j = 0; j < m.cols_; j++)
+            for(int k = 0; k < cols_; k++)
+                tmp[tmp.cols_*i+j] += data_[cols_*i+k] * m[m.cols_*k+j];
     return tmp;
-}*/
+}
 
-/*inline
+inline
 void Matrix::show()
 {
     for(int i = 0; i < rows_; i++)
     {
         for(int j = 0; j < cols_; j++)
-            printf("%3d",matr[i][j]);
+           cout << data_[cols_*i+j] << " ";
         cout << endl;
     }
-}*/
+}
 
 
 //---------
@@ -293,7 +301,7 @@ inline
 void SayHello()
 {
     cout << "Привет!" << endl;
-    cout << "Ты запустил программу для решения прямой кинематической задачи манипулятора." << endl;
+    cout << "Ты запустил программу для решения прямой позиционной задачи." << endl;
     cout << "Ниже ты видишь меню, чтобы сделать выбор просто введи номер пункта." << endl;
     cout << "Например, если ты хочешь добавить новое звено манипулятору, то вводи 1." << endl;
     cout << "Удачи!" << endl;
