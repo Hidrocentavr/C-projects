@@ -19,6 +19,14 @@ struct Point
     void Input(Point &point);   //метод для ввода параметров звена
 };
 
+//датчики
+struct Sensor
+{
+    int data[10] = {0};
+
+    void Input(Sensor encoder, List mp);   //метод для получения данных с датчиков
+};
+
 //списки
 class List
 {
@@ -110,6 +118,17 @@ void Point::Input(Point &point)
         cout << "Параметр a = "; cin >> point.a;
         cout << "Параметр d = "; cin >> point.d;
     }
+}
+
+//-------
+//ДАТЧИКИ
+//-------
+inline
+void Sensor::Input(Sensor encoder, List mp)
+{
+    cout << "Введите обобщённые координаты";
+    for (int i = 0; i < mp.NumberOfPoints; i++)
+        cout << "Звено " << i << ":"; cin >> encoder.data[i];
 }
 
 //------
@@ -397,7 +416,10 @@ void Menu()
         manipulator.Show();
         break;
     case '4':
-        cout << "Данный пункт меню находится в разработке." << endl;
+        Sensor encoder;
+        encoder.Input(encoder, manipulator);
+        manipulator.Solver(encoder);
+        cout << "Матрица T успешно вычислена!" << endl;
         break;
     case '5':
         cout << "Данный пункт меню находится в разработке." << endl;
