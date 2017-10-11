@@ -19,6 +19,11 @@ struct Point
     void Input(Point &point);   //метод для ввода параметров звена
 };
 
+struct Element //элемент списка, а point - значение этого элемента
+{
+
+};
+
 //датчики
 struct Sensor
 {
@@ -27,35 +32,11 @@ struct Sensor
     //    void Input(Sensor encoder, List mp);   //метод для получения данных с датчиков
 };
 
-//списки
-class List
-{
-protected:
-    Point *Head;                //голова списка (первый элемент)
-    Point *Tail;                //хвост списка (последний элемент)
-
-public:
-    int NumberOfPoints = 0;
-
-    List();                     //конструктор
-    ~List();                    //деструктор
-
-    bool Empty();               //проверка списка на заполненность (true - если список пуст)
-    void Add(Point &point);     //метод для добавления нового звена в список
-    void Show();                //метод для отображения списка
-    Point *Search(int n);       //поиск элемента в списке по номеру
-    void Delete(int n);         //метод для удаления элемента из списка по номеру
-    Matrix *AMatrix(float q, float alpha, float a, float d); //матрица переноса A
-    Matrix *Solver(Sensor encoder); //решатель
-};
 
 //матрицы
 class Matrix
 {
-private:
-
-public:
-    int rows_, cols_;
+    int rows_, cols_; //спрятать в методы и заприватить (инкапсуляция)
     double* data_;
 
     Matrix(int rows, int cols); //конструктор прямоугольной матрицы
@@ -66,21 +47,48 @@ public:
     Matrix& operator= (Matrix& m);            //перегрузка оператора =
     Matrix& operator+ (Matrix& m);            //перегрузка оператора +
     Matrix& operator* (Matrix& m);            //перегрузка оператора *
+    Matrix& operator= (int k);                //перегрузка оператора = числом
 
     void show();
+};
+
+//списки
+class List
+{
+protected:
+    Point *Head;                //голова списка (первый элемент)
+    Point *Tail;                //хвост списка (последний элемент)
+
+public:
+    int NumberOfPoints = 0; //NumberOfElements (перенести в метод)
+
+    List();                     //конструктор
+    ~List();                    //деструктор
+
+    bool Empty();               //проверка списка на заполненность (true - если список пуст)
+    void Add(Point &point);     //метод для добавления нового звена в список
+    void Show();                //метод для отображения списка
+    Point* Search(int n);       //поиск элемента в списке по номеру
+    void Delete(int n);         //метод для удаления элемента из списка по номеру
+
+    //определить в новый класс
+
+//    Matrix AMatrix(float q, float alpha, float a, float d); //матрица переноса A
+//    Matrix Solver(Sensor encoder); //решатель
 };
 
 void SayHello();                //приветствие
 void ShowMenu();                //описание меню
 void Menu();                    //реализация меню
 
+
+
 /*=============== ГЛАВНАЯ ФУНКЦИЯ ===============*/
 
 List manipulator;
 
-int main(int argc, char *argv[])
+int main()
 {
-    QCoreApplication a(argc, argv);
     setlocale(0, "");
 
     SayHello();
@@ -88,9 +96,10 @@ int main(int argc, char *argv[])
 
     while(true)
     {
-        Menu();
+        Menu(); //добавить выход из программы в этот цикл
     }
-    return a.exec();
+
+    return 0;
 }
 
 /*=============== ОПИСАНИЕ ФУНКЦИЙ, МЕТОДОВ, КОНСТРУКТОРОВ И ВСЕГО ОСТАЛЬНОГО ===============*/
@@ -239,20 +248,20 @@ void List::Delete(int n)
     }*/
 }
 
-Matrix& List::AMatrix(float q, float alpha, float a, float d)
+/*Matrix List::AMatrix(float q, float alpha, float a, float d) //перенести в структуру звена
 {
     Matrix A(4);
     A.data_ =
     {
         {cos(q), -cos(alpha)*sin(q), sin(alpha)*sin(q), a*cos(q)},
         {sin(q), cos(alpha)*cos(q), -sin(alpha)*cos(q), a*sin(q)},
-        {0, sin(aplha), cos(alpha), d},
+        {0, sin(alpha), cos(alpha), d},
         {0, 0, 0, 1}
     };
     return A;
 }
 
-Matrix& List::Solver(Sensor encoder)
+Matrix List::Solver(Sensor encoder)
 {
     Matrix T(4);
     T.data_ = 1;
@@ -273,7 +282,7 @@ Matrix& List::Solver(Sensor encoder)
     }
 
     return T;
-}
+}*/
 
 //-------
 //МАТРИЦЫ
@@ -509,7 +518,9 @@ public:
 class Solver : public List
 {
 public:
-    float AMatrix(int n)
+
+
+AMatrix(int n)
     {
         Point point;
         point = List.Search(n);
