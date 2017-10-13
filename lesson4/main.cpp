@@ -48,12 +48,12 @@ class filelogger : public logger
 public:
     filelogger(const std::string &fileName)
     {
-        _file.open(fileName);
+        _file.open(fileName.c_str());
     }
 
     void log(const std::string &message) override
     {
-        _file << message << std.endl;
+        _file << message << std::endl;
     }
 
     ~filelogger()
