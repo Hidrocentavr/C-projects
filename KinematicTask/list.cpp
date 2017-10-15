@@ -25,13 +25,11 @@ void Point::Input()
     }
 }
 
-inline
 List::List() : Head_(NULL), Tail_(NULL), num_(0)
 {
 
 }
 
-inline
 List::~List()
 {
     while (Head_ != NULL)

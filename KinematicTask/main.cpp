@@ -9,7 +9,7 @@ using namespace std;
 
 /*=============== ОСНОВНЫЕ ЭЛЕМЕНТЫ ПРОГРАММЫ ===============*/
 
-class Manipulator : public List
+class Manipulatorз : public List
 {
 public:
     Matrix SolveDirectKinematic(); //решатель
@@ -18,7 +18,7 @@ public:
 
 void SayHello();                //приветствие
 void ShowMenu();                //описание меню
-bool Menu(Manipulator manipulator);                    //реализация меню
+bool Menu(Manipulator &manipulator);                    //реализация меню
 
 /*=============== ГЛАВНАЯ ФУНКЦИЯ ===============*/
 
@@ -26,7 +26,7 @@ bool Menu(Manipulator manipulator);                    //реализация м
 
 int main()
 {
-    setlocale(0, "");
+//    setlocale(0, ""); NULL заменить на nullptr //конструктор для new () //size_t - только положительные числа
 
     SayHello();
     ShowMenu();
@@ -73,7 +73,7 @@ void ShowMenu()
     cout << "==================================================" << endl;
 }
 
-bool Menu(Manipulator manipulator)
+bool Menu(Manipulator &manipulator)
 {
     char number;
 

@@ -26,7 +26,7 @@ Matrix::Matrix(int rows, int cols) : rows_ (rows), cols_ (cols)
 
 Matrix::~Matrix()
 {
-    delete data_;
+    delete data_; //узнать как удаляется массив
 }
 
 Matrix Matrix::operator= (int k)
