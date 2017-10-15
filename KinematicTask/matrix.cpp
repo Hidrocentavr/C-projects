@@ -3,93 +3,76 @@
 
 using namespace std;
 
-Matrix::Matrix() : rows_ (0), cols_ (0), data_ (NULL)
-{
+Matrix::Matrix()
+        : rows_(0), cols_(0), data_(nullptr) {}
 
-}
-
-Matrix::Matrix(int n) : rows_ (n), cols_ (n)
-{
+Matrix::Matrix(int n) : rows_(n), cols_(n) {
     if (n == 0)
         cout << "Matrix constructor has 0 size" << endl;
 
-    data_ = new double[n * n];
+    data_ = new double[n * n]();
 }
 
-Matrix::Matrix(int rows, int cols) : rows_ (rows), cols_ (cols)
-{
+Matrix::Matrix(size_t rows, size_t cols) : rows_(rows), cols_(cols) {
     if (rows == 0 || cols == 0)
         cout << "Matrix constructor has 0 size" << endl;
 
-    data_ = new double[rows * cols];
+    data_ = new double[rows * cols]();
 }
 
-Matrix::~Matrix()
-{
-    delete data_;
+Matrix::~Matrix() {
+    delete[] data_;
 }
 
-Matrix Matrix::operator= (int k)
-{
-    data_ = {0};
-
-    if (rows_ == cols_)
-    {
-        for(int i = 0, j = 0; i < rows_; i++, j++)
-        {
-            data_[cols_*i+j] = k;
+Matrix& Matrix::operator=(int k) {
+    if (rows_ == cols_) {
+        for (int i = 0, j = 0; i < rows_; i++, j++) {
+            data_[cols_ * i + j] = k;
         }
-    }
-    else
-    {
+    } else {
         cout << "Матрица не квадратная" << endl;
     }
 
     return *this;
 }
 
-Matrix Matrix::operator= (Matrix m)
-{
-    if (m.cols_ == cols_ && m.rows_ == rows_)
-    {
+Matrix& Matrix::operator=(const Matrix& m) {
+    if (m.cols_ == cols_ && m.rows_ == rows_) {
         for (int i = 0; i < rows_; i++)
             for (int j = 0; j < cols_; j++)
-                data_[cols_*i+j] = m.data_[cols_*i+j];
-    }
-    else
-    {
+                data_[cols_ * i + j] = m.data_[cols_ * i + j];
+    } else {
         cout << "Размеры матриц не совпадают" << endl;
     }
 
     return *this;
 }
 
-Matrix Matrix::operator+ (Matrix m)
-{
-
+Matrix& Matrix::operator+(const Matrix& m) {
     for (int i = 0; i < rows_; i++)
         for (int j = 0; j < cols_; j++)
-            data_[cols_*i+j] = data_[cols_*i+j] + m.data_[cols_*i+j];
+            data_[cols_ * i + j] = data_[cols_ * i + j] + m.data_[cols_ * i + j];
 
     return *this;
 }
 
-Matrix Matrix::operator* (Matrix m)
-{
+Matrix Matrix::operator*(const Matrix& m) {
     Matrix tmp(rows_, m.cols_);
     for (int i = 0; i < rows_; i++)
         for (int j = 0; j < m.cols_; j++)
             for (int k = 0; k < cols_; k++)
-                tmp.data_[tmp.cols_*i+j] += data_[cols_*i+k] * m.data_[m.cols_*k+j];
+                tmp.data_[tmp.cols_ * i + j] += data_[cols_ * i + k] * m.data_[m.cols_ * k + j];
     return tmp;
 }
 
-void Matrix::show()
-{
-    for (int i = 0; i < rows_; i++)
-    {
+void Matrix::show() {
+    for (int i = 0; i < rows_; i++) {
         for (int j = 0; j < cols_; j++)
-            cout << data_[cols_*i+j] << " ";
+            cout << data_[cols_ * i + j] << " ";
         cout << endl;
     }
+}
+
+double Matrix::operator()(int row, int col) {
+    return 0;
 }

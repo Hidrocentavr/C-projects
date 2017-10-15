@@ -1,7 +1,8 @@
 #include <QCoreApplication>
 #include <iostream>
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
+#include <functional>
 #include "matrix.h" //мои матрицы
 #include "list.h" //мои списки
 
@@ -9,16 +10,53 @@ using namespace std;
 
 /*=============== ОСНОВНЫЕ ЭЛЕМЕНТЫ ПРОГРАММЫ ===============*/
 
-class Manipulator : public List
+class Manipulator
 {
+    List<Point> points;
+
 public:
+    void Add(const Point& point) {
+        points.Add(point);
+    }
+
+    size_t Size() const {
+        return points.NumberOfElements();
+    }
+
     Matrix SolveDirectKinematic(); //решатель
     Matrix AMatrix(float q, float alpha, float a, float d); //матрица переноса A
 };
 
+struct Manager {
+    Manipulator manipulator;
+    Matrix result;
+};
+
+
+template <class... Args>
+class Ololo {
+
+    std::function<std::function<double()>()> ololo;
+
+public:
+    auto get() {
+        return ololo();
+    }
+
+    Ololo(Args&&... args) {
+        static_assert(std::conjunction_v<std::is_arithmetic<Args>...>, "It's not arithmetic");
+
+        ololo = [=] {
+            return [=] {
+                return args;
+            };
+        };
+    }
+};
+
 void SayHello();                //приветствие
 void ShowMenu();                //описание меню
-bool Menu(Manipulator manipulator);                    //реализация меню
+bool Menu(Manipulator& manipulator);                    //реализация меню
 
 /*=============== ГЛАВНАЯ ФУНКЦИЯ ===============*/
 
@@ -26,6 +64,12 @@ bool Menu(Manipulator manipulator);                    //реализация м
 
 int main()
 {
+    Ololo o(5,4,3,2,1,0.0052525);
+    auto kek = o.get();
+    auto res = kek();
+
+
+
     setlocale(0, "");
 
     SayHello();
@@ -73,7 +117,7 @@ void ShowMenu()
     cout << "==================================================" << endl;
 }
 
-bool Menu(Manipulator manipulator)
+bool Menu(Manipulator& manipulator)
 {
     char number;
 
@@ -83,12 +127,11 @@ bool Menu(Manipulator manipulator)
     {
     case '1':
     {
-        Element element;
+        cout << "Звено " << manipulator.Size() << endl;
 
-        cout << "Звено " << manipulator.NumberOfElements() << endl;
-
-        element.point.Input();
-        manipulator.Add(element);
+        Point point;
+        point.Input();
+        manipulator.Add(point);
 
         cout << endl << "Звено успешно добавлено!" << endl;
 
@@ -100,13 +143,13 @@ bool Menu(Manipulator manipulator)
 
         cout << "Введите номер звена: "; cin >> n;
 
-        manipulator.Delete(n);
+        //manipulator.Delete(n);
         cout << endl << "Звено успешно удалено!" << endl;
 
         break;
 
     case '3':
-        manipulator.Show();
+        //manipulator.Show();
 
         break;
 
@@ -156,21 +199,21 @@ Matrix Manipulator::SolveDirectKinematic()
     Matrix T(4);
     T = 1;
     int i = 0;
-    Element *temp;
-
-    cout << "Введите обобщённые координаты";
-
-    for (temp = Search(1); temp != NULL; temp = temp->Next)
-    {
-        cout << "Звено " << i << ":";
-        if (temp->point.type == 1)
-            cin >> temp->point.q;
-        else
-            cin >> temp->point.d;
-
-        T = T * AMatrix(temp->point.q, temp->point.alpha, temp->point.a, temp->point.d);
-        i++;
-    }
+//    Element *temp;
+//
+//    cout << "Введите обобщённые координаты";
+//
+//    for (temp = Search(1); temp != NULL; temp = temp->Next)
+//    {
+//        cout << "Звено " << i << ":";
+//        if (temp->point.type == 1)
+//            cin >> temp->point.q;
+//        else
+//            cin >> temp->point.d;
+//
+//        T = T * AMatrix(temp->point.q, temp->point.alpha, temp->point.a, temp->point.d);
+//        i++;
+//    }
 
     return T;
 }
