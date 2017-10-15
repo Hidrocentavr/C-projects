@@ -26,79 +26,80 @@ void Point::Input(Point &point)
 }
 
 inline
-List::List()
+List::List() : _Head(NULL), _Tail(NULL), _num(0)
 {
-    Head = NULL;
-    Tail = NULL;
+
 }
 
 inline
 List::~List()
 {
-    while (Head != NULL)
+    while (_Head != NULL)
     {
-        Point *temp = Head->Next;
-        delete Head;
-        Head = temp;
+        Element *temp = *_Head->Next;
+        delete _Head;
+        _Head = temp;
     }
+    delete _num;
 }
 
-inline
+int List::NumberOfElements()
+{
+    return _num;
+}
+
 bool List::Empty()
 {
-    return (Head == NULL);
+    return (_Head == NULL);
 }
 
-void List::Add(Point &point)
+void List::Add(Element element)
 {
-    Point *temp = new Point;
+    Element *temp = new Element;
 
-    temp->type = point.type;
-    temp->a = point.a;
-    temp->alpha = point.alpha;
-    temp->d = point.d;
-    temp->q = point.q;
+    temp->point = element.point;
+    temp->Next = NULL;
 
-    if (List::Empty())
+    _num++;
+
+    if (Empty())
     {
-        Head = temp;
+        _Head = temp;
     }
     else
     {
-        Tail->Next = temp;
+        _Tail->Next = temp;
     }
-    temp->Next = NULL;
-    Tail = temp;
+    _Tail = temp;
 }
 
 void List::Show()
 {
-    Point *temp = Head;
-    int i=0;
-    while (temp != NULL)
+    int i = 0;
+    for (Element *temp = _Head; temp != NULL; temp = temp->Next)
     {
         cout << "----------------------------------" << endl;
         cout << "             Звено " << ++i << endl;
         cout << "----------------------------------" << endl;
-        cout << (temp->type == 0 ? "Поступательная" : "Вращательная") << " кинематическая пара" << endl;
-        if (temp->q == -1)
+
+        cout << (temp->point.type == 0 ? "Поступательная" : "Вращательная") << " кинематическая пара" << endl;
+
+        if (temp->point.q == -1)
             cout << "Параметр q - обобщённая координата" << endl;
         else
-            cout << "Параметр q = " << temp->q << endl;
-        cout << "Параметр alpha = " << temp->alpha << endl;
-        cout << "Параметр a = " << temp->a << endl;
-        if (temp->d == -1)
+            cout << "Параметр q = " << temp->point.q << endl;
+        cout << "Параметр alpha = " << temp->point.alpha << endl;
+        cout << "Параметр a = " << temp->point.a << endl;
+        if (temp->point.d == -1)
             cout << "Параметр d - обобщённая координата" << endl;
         else
-            cout << "Параметр d = " << temp->d << endl;
-
-        temp = temp->Next;
+            cout << "Параметр d = " << temp->point.d << endl;
     }
 }
 
-Point* List::Search(int n)
+Element* List::Search(int n)
 {
-    Point *temp = Head;
+    Element *temp = _Head;
     while(n > 1)
     {
         temp = temp->Next;
@@ -109,19 +110,20 @@ Point* List::Search(int n)
 
 void List::Delete(int n)
 {
-    Point *temp = Head, element;
+    Element *temp = _Head, element;
 
-    if (Head == Tail)
+    if (_Head == _Tail)
     {
-        Head = NULL;
-        Tail = NULL;
+        delete _Head;
+        _Head = NULL;
+        _Tail = NULL;
         return;
     }
 
     if (n == 1)
     {
-        delete Head;
-        Head = temp->Next;
+        delete _Head;
+        _Head = temp->Next;
         return;
     }
 
@@ -133,12 +135,12 @@ void List::Delete(int n)
         delete temp->Next;
         temp->Next = element.Next;
     }
-    /* else
+    else
     {
-        element = temp->Next;
-        delete element;
+        delete _Tail;
         temp->Next = NULL;
-    }*/
+        _Tail = temp;
+    }
 }
 
 /*Matrix List::AMatrix(float q, float alpha, float a, float d) //перенести в структуру звена
