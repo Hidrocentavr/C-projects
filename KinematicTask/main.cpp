@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include <iostream>
 #include <stdio.h>
+#include <math.h>
 #include "matrix.h" //мои матрицы
 #include "list.h" //мои списки
 
@@ -8,17 +9,20 @@ using namespace std;
 
 /*=============== ОСНОВНЫЕ ЭЛЕМЕНТЫ ПРОГРАММЫ ===============*/
 
-
+class Manipulator : public List
+{
+public:
+    Matrix SolveDirectKinematic(); //решатель
+    Matrix AMatrix(float q, float alpha, float a, float d); //матрица переноса A
+};
 
 void SayHello();                //приветствие
 void ShowMenu();                //описание меню
-void Menu();                    //реализация меню
-
-
+bool Menu(Manipulator manipulator);                    //реализация меню
 
 /*=============== ГЛАВНАЯ ФУНКЦИЯ ===============*/
 
-List manipulator;
+//List manipulator;
 
 int main()
 {
@@ -27,9 +31,12 @@ int main()
     SayHello();
     ShowMenu();
 
+    Manipulator manipulator;
+
     while(true)
     {
-        Menu(); //добавить выход из программы в этот цикл
+        if (!Menu(manipulator))
+            exit(0);
     }
 
     return 0;
@@ -66,7 +73,7 @@ void ShowMenu()
     cout << "==================================================" << endl;
 }
 
-void Menu()
+bool Menu(Manipulator manipulator)
 {
     char number;
 
@@ -75,42 +82,99 @@ void Menu()
     switch (number)
     {
     case '1':
-        manipulator.NumberOfPoints++;
-        Point point;
-        cout << "Звено " << manipulator.NumberOfPoints << endl;
-        point.Input(point);
-        manipulator.Add(point);
+    {
+        Element element;
+
+        cout << "Звено " << manipulator.NumberOfElements() << endl;
+
+        element.point.Input();
+        manipulator.Add(element);
+
         cout << endl << "Звено успешно добавлено!" << endl;
+
         break;
+    }
+
     case '2':
-        manipulator.NumberOfPoints--;
         int n;
+
         cout << "Введите номер звена: "; cin >> n;
+
         manipulator.Delete(n);
         cout << endl << "Звено успешно удалено!" << endl;
+
         break;
+
     case '3':
         manipulator.Show();
+
         break;
+
     case '4':
-//        Sensor encoder;
-//        manipulator.Solver(encoder);
+        manipulator.SolveDirectKinematic();
+
         cout << "Матрица T успешно вычислена!" << endl;
         break;
+
     case '5':
         cout << "Данный пункт меню находится в разработке." << endl;
         break;
+
     case '6':
-        exit(0);
+        return 0;
+
     case '?':
         ShowMenu();
         break;
+
     default:
         cout << "Ошибка!" << endl;
         break;
     }
+
     cout << endl;
+
+    return 1;
 }
+
+Matrix Manipulator::AMatrix(float q, float alpha, float a, float d) //перенести в структуру звена
+{
+    Matrix A(4);
+    A.data_[0] = cos(q); A.data_[1] = -cos(alpha)*sin(q);
+    A.data_[2] = sin(alpha)*sin(q); A.data_[3] = a*cos(q);
+    A.data_[4] = sin(q); A.data_[5] = cos(alpha)*cos(q);
+    A.data_[6] = -sin(alpha)*cos(q); A.data_[7] = a*sin(q);
+    A.data_[8] = 0; A.data_[9] = sin(alpha);
+    A.data_[10] = cos(alpha); A.data_[11] = d;
+    A.data_[12] = 0; A.data_[13] = 0; A.data_[14] = 0; A.data_[15] = 0;
+
+    return A;
+}
+
+Matrix Manipulator::SolveDirectKinematic()
+{
+    Matrix T(4);
+    T = 1;
+    int i = 0;
+    Element *temp;
+
+    cout << "Введите обобщённые координаты";
+
+    for (temp = Search(1); temp != NULL; temp = temp->Next)
+    {
+        cout << "Звено " << i << ":";
+        if (temp->point.type == 1)
+            cin >> temp->point.q;
+        else
+            cin >> temp->point.d;
+
+        T = T * AMatrix(temp->point.q, temp->point.alpha, temp->point.a, temp->point.d);
+        i++;
+    }
+
+    return T;
+}
+
 
 /*=============== ЗАДУМКИ, КОТОРЫЕ ЕЩЁ МОГУТ ПРИГОДИТЬСЯ ===============*/
 

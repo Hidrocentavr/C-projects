@@ -10,7 +10,7 @@ struct Point
     float a;
     float d;
 
-    void Input(Point &point);   //метод для ввода параметров звена
+    void Input();   //метод для ввода параметров звена
 };
 
 struct Element
@@ -23,9 +23,9 @@ struct Element
 class List
 {
 private:
-    Element *_Head;                //голова списка (первый элемент)
-    Element *_Tail;                //хвост списка (последний элемент)
-    int _num;
+    Element *Head_;                //голова списка (первый элемент)
+    Element *Tail_;                //хвост списка (последний элемент)
+    int num_;
 
 public:
     List();                     //конструктор
@@ -35,7 +35,7 @@ public:
     bool Empty();               //проверка списка на заполненность (true - если список пуст)
     void Add(Element element);  //метод для добавления нового звена в список
     void Show();                //метод для отображения списка
-    Element Search(int n);      //поиск элемента в списке по номеру
+    Element* Search(int n);      //поиск элемента в списке по номеру
     void Delete(int n);         //метод для удаления элемента из списка по номеру
 
 };

@@ -3,30 +3,30 @@
 
 using namespace std;
 
-void Point::Input(Point &point)
+void Point::Input()
 {
     cout << "Тип кинематической пары (0 - поступательная, 1 - вращательная): ";
-    cin >> point.type;
-    if (point.type == 0)
+    cin >> type;
+    if (type == 0)
     {
         cout << "Введите параметры Денавита-Хартенберга:" << endl;
-        cout << "Параметр q = "; cin >> point.q;
-        cout << "Параметр alpha = "; cin >> point.alpha;
-        cout << "Параметр a = "; cin >> point.a;
-        cout << "Параметр d - обобщённая координата" << endl; point.d = -1;
+        cout << "Параметр q = "; cin >> q;
+        cout << "Параметр alpha = "; cin >> alpha;
+        cout << "Параметр a = "; cin >> a;
+        cout << "Параметр d - обобщённая координата" << endl; d = -1;
     }
     else
     {
         cout << "Введите параметры Денавита-Хартенберга:" << endl;
-        cout << "Параметр q - обобщённая координата" << endl; point.q = -1;
-        cout << "Параметр alpha = "; cin >> point.alpha;
-        cout << "Параметр a = "; cin >> point.a;
-        cout << "Параметр d = "; cin >> point.d;
+        cout << "Параметр q - обобщённая координата" << endl; q = -1;
+        cout << "Параметр alpha = "; cin >> alpha;
+        cout << "Параметр a = "; cin >> a;
+        cout << "Параметр d = "; cin >> d;
     }
 }
 
 inline
-List::List() : _Head(NULL), _Tail(NULL), _num(0)
+List::List() : Head_(NULL), Tail_(NULL), num_(0)
 {
 
 }
@@ -34,23 +34,22 @@ List::List() : _Head(NULL), _Tail(NULL), _num(0)
 inline
 List::~List()
 {
-    while (_Head != NULL)
+    while (Head_ != NULL)
     {
-        Element *temp = *_Head->Next;
-        delete _Head;
-        _Head = temp;
+        Element *temp = Head_->Next;
+        delete Head_;
+        Head_ = temp;
     }
-    delete _num;
 }
 
 int List::NumberOfElements()
 {
-    return _num;
+    return num_;
 }
 
 bool List::Empty()
 {
-    return (_Head == NULL);
+    return (Head_ == NULL);
 }
 
 void List::Add(Element element)
@@ -60,23 +59,23 @@ void List::Add(Element element)
     temp->point = element.point;
     temp->Next = NULL;
 
-    _num++;
+    num_++;
 
     if (Empty())
     {
-        _Head = temp;
+        Head_ = temp;
     }
     else
     {
-        _Tail->Next = temp;
+        Tail_->Next = temp;
     }
-    _Tail = temp;
+    Tail_ = temp;
 }
 
 void List::Show()
 {
     int i = 0;
-    for (Element *temp = _Head; temp != NULL; temp = temp->Next)
+    for (Element *temp = Head_; temp != NULL; temp = temp->Next)
     {
         cout << "----------------------------------" << endl;
         cout << "             Звено " << ++i << endl;
@@ -99,7 +98,7 @@ void List::Show()
 
 Element* List::Search(int n)
 {
-    Element *temp = _Head;
+    Element *temp = Head_;
     while(n > 1)
     {
         temp = temp->Next;
@@ -110,26 +109,26 @@ Element* List::Search(int n)
 
 void List::Delete(int n)
 {
-    Element *temp = _Head, element;
+    Element *temp = Head_, element;
 
-    if (_Head == _Tail)
+    if (Head_ == Tail_)
     {
-        delete _Head;
-        _Head = NULL;
-        _Tail = NULL;
+        delete Head_;
+        Head_ = NULL;
+        Tail_ = NULL;
         return;
     }
 
     if (n == 1)
     {
-        delete _Head;
-        _Head = temp->Next;
+        delete Head_;
+        Head_ = temp->Next;
         return;
     }
 
     temp = Search(n-1);
 
-    if (temp->Next != Tail)
+    if (temp->Next != Tail_)
     {
         element.Next = temp->Next->Next;
         delete temp->Next;
@@ -137,44 +136,8 @@ void List::Delete(int n)
     }
     else
     {
-        delete _Tail;
+        delete Tail_;
         temp->Next = NULL;
-        _Tail = temp;
+        Tail_ = temp;
     }
 }
-
-/*Matrix List::AMatrix(float q, float alpha, float a, float d) //перенести в структуру звена
-{
-    Matrix A(4);
-    A.data_ =
-    {
-        {cos(q), -cos(alpha)*sin(q), sin(alpha)*sin(q), a*cos(q)},
-        {sin(q), cos(alpha)*cos(q), -sin(alpha)*cos(q), a*sin(q)},
-        {0, sin(alpha), cos(alpha), d},
-        {0, 0, 0, 1}
-    };
-    return A;
-}
-
-Matrix List::Solver(Sensor encoder)
-{
-    Matrix T(4);
-    T.data_ = 1;
-
-    Point *temp = Head;
-
-    cout << "Введите обобщённые координаты";
-    for (int i = 0; temp != NULL; i++)
-    {
-        cout << "Звено " << i << ":";
-        if (temp->type == 1)
-            temp->q = cin >> encoder.data[i];
-        else
-            temp->d = cin >> encoder.data[i];
-
-        T = T * AMatrix(temp->q, temp->alpha, temp->a, temp->d);
-        temp = temp->Next;
-    }
-
-    return T;
-}*/
