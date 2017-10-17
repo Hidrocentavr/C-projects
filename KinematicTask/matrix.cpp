@@ -26,19 +26,20 @@ Matrix::Matrix(int rows, int cols) : rows_ (rows), cols_ (cols)
 
 Matrix::~Matrix()
 {
-    delete data_; //узнать как удаляется массив
 }
 
 Matrix Matrix::operator= (int k)
 {
-    data_ = {0};
-
     if (rows_ == cols_)
     {
-        for(int i = 0, j = 0; i < rows_; i++, j++)
-        {
-            data_[cols_*i+j] = k;
-        }
+        for (int i = 0; i < rows_; i++)
+            for (int j = 0; j < cols_; j++)
+            {
+                if (i == j)
+                    data_[cols_*i+j] = k;
+                else
+                    data_[cols_*i+j] = 0;
+            }
     }
     else
     {

@@ -9,16 +9,25 @@ using namespace std;
 
 /*=============== ОСНОВНЫЕ ЭЛЕМЕНТЫ ПРОГРАММЫ ===============*/
 
-class Manipulatorз : public List
+class Manipulator : public List
 {
 public:
     Matrix SolveDirectKinematic(); //решатель
     Matrix AMatrix(float q, float alpha, float a, float d); //матрица переноса A
 };
 
+Matrix result(4);
+
+struct Manager
+{
+    Manipulator manipulator;
+};
+
 void SayHello();                //приветствие
 void ShowMenu();                //описание меню
-bool Menu(Manipulator &manipulator);                    //реализация меню
+bool Menu(Manager &manager);                    //реализация меню
+
+
 
 /*=============== ГЛАВНАЯ ФУНКЦИЯ ===============*/
 
@@ -31,11 +40,11 @@ int main()
     SayHello();
     ShowMenu();
 
-    Manipulator manipulator;
+    Manager manager;
 
     while(true)
     {
-        if (!Menu(manipulator))
+        if (!Menu(manager))
             exit(0);
     }
 
@@ -47,7 +56,7 @@ int main()
 //---------
 //ИНТЕРФЕЙС
 //---------
-inline
+
 void SayHello()
 {
     cout << "Привет!" << endl;
@@ -58,7 +67,7 @@ void SayHello()
     cout << endl;
 }
 
-inline
+
 void ShowMenu()
 {
     cout << "МЕНЮ" << endl;
@@ -73,7 +82,7 @@ void ShowMenu()
     cout << "==================================================" << endl;
 }
 
-bool Menu(Manipulator &manipulator)
+bool Menu(Manager &manager)
 {
     char number;
 
@@ -85,10 +94,10 @@ bool Menu(Manipulator &manipulator)
     {
         Element element;
 
-        cout << "Звено " << manipulator.NumberOfElements() << endl;
+        cout << "Звено " << manager.manipulator.NumberOfElements()+1 << endl;
 
         element.point.Input();
-        manipulator.Add(element);
+        manager.manipulator.Add(element);
 
         cout << endl << "Звено успешно добавлено!" << endl;
 
@@ -100,24 +109,24 @@ bool Menu(Manipulator &manipulator)
 
         cout << "Введите номер звена: "; cin >> n;
 
-        manipulator.Delete(n);
+        manager.manipulator.Delete(n);
         cout << endl << "Звено успешно удалено!" << endl;
 
         break;
 
     case '3':
-        manipulator.Show();
+        manager.manipulator.Show();
 
         break;
 
     case '4':
-        manipulator.SolveDirectKinematic();
+        result = manager.manipulator.SolveDirectKinematic();
 
         cout << "Матрица T успешно вычислена!" << endl;
         break;
 
     case '5':
-        cout << "Данный пункт меню находится в разработке." << endl;
+        result.show();
         break;
 
     case '6':
@@ -146,7 +155,7 @@ Matrix Manipulator::AMatrix(float q, float alpha, float a, float d) //перен
     A.data_[6] = -sin(alpha)*cos(q); A.data_[7] = a*sin(q);
     A.data_[8] = 0; A.data_[9] = sin(alpha);
     A.data_[10] = cos(alpha); A.data_[11] = d;
-    A.data_[12] = 0; A.data_[13] = 0; A.data_[14] = 0; A.data_[15] = 0;
+    A.data_[12] = 0; A.data_[13] = 0; A.data_[14] = 0; A.data_[15] = 1;
 
     return A;
 }
@@ -158,17 +167,23 @@ Matrix Manipulator::SolveDirectKinematic()
     int i = 0;
     Element *temp;
 
-    cout << "Введите обобщённые координаты";
+    cout << "Введите обобщённые координаты" << endl;
 
     for (temp = Search(1); temp != NULL; temp = temp->Next)
     {
-        cout << "Звено " << i << ":";
+        cout << "Звено " << i+1 << ": ";
         if (temp->point.type == 1)
             cin >> temp->point.q;
         else
             cin >> temp->point.d;
 
+        cout << "T:" << endl;
+        T.show();
+        cout << "A:" << endl;
+        AMatrix(temp->point.q, temp->point.alpha, temp->point.a, temp->point.d).show();
         T = T * AMatrix(temp->point.q, temp->point.alpha, temp->point.a, temp->point.d);
+        cout << "Res:" << endl;
+        T.show();
         i++;
     }
 
@@ -308,7 +323,7 @@ public:
 //-------
 //ДАТЧИКИ
 //-------
-inline
+
 void Sensor::Input(Sensor encoder, List mp)
 {
     cout << "Введите обобщённые координаты";
