@@ -46,7 +46,7 @@ template<class A, class B> struct TemplateClass
 
 template<class C> struct TemplateClass<C, C>
 {
-    C c;
+    C a;
 };
 
 template<> struct TemplateClass<float, float> //шаблон без параметров. Использует полную спецификацию
