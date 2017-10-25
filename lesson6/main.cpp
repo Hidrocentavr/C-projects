@@ -38,8 +38,31 @@ struct Complex
     float Re, Im;
 };
 
+template<class A, class B> struct TemplateClass
+{
+    A a;
+    B b;
+};
+
+template<class C> struct TemplateClass<C, C>
+{
+    C c;
+};
+
+template<> struct TemplateClass<float, float> //шаблон без параметров. Использует полную спецификацию
+{
+    double a;
+    double b;
+};
+
 void lab6()
 {
+    TemplateClass<int, float> t1;
+    t1.a;
+
+    TemplateClass<int> t2;
+    int tmp = t2.c;
+
     MyArray<int> int_array(5);
     for (int i = 0; i < 5; i++)
     {
