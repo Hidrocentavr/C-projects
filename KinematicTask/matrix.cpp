@@ -67,7 +67,6 @@ Matrix Matrix::operator= (Matrix m)
 
 Matrix Matrix::operator+ (Matrix m)
 {
-
     for (int i = 0; i < rows_; i++)
         for (int j = 0; j < cols_; j++)
             data_[cols_*i+j] = data_[cols_*i+j] + m.data_[cols_*i+j];

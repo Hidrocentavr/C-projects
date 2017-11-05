@@ -16,9 +16,10 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    matrix.cpp \
-    list.cpp
+    matrix.cpp
 
 HEADERS += \
     matrix.h \
     list.h
+
+QMAKE_CXXFLAGS += -std=c++0x

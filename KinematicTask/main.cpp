@@ -5,29 +5,45 @@
 #include "matrix.h" //мои матрицы
 #include "list.h" //мои списки
 
-using namespace std;
-
 /*=============== ОСНОВНЫЕ ЭЛЕМЕНТЫ ПРОГРАММЫ ===============*/
 
-class Manipulator : public List
+//звенья списка
+class Point
 {
+private:
+    int _type;
+    float _q;
+    float _alpha;
+    float _a;
+    float _d;
+
 public:
-    Matrix SolveDirectKinematic(); //решатель
-    Matrix AMatrix(float q, float alpha, float a, float d); //матрица переноса A
+    float* _oc;
+    void input();   //метод для ввода параметров звена
+    void show();
+    int get_type(){ return _type; }
+    float get_q(){ return _q; }
+    float get_alpha(){ return _alpha; }
+    float get_a(){ return _a; }
+    float get_d(){ return _d; }
 };
 
-Matrix result(4);
-
-struct Manager
+class ManipulatorSolver
 {
-    Manipulator manipulator;
+private:
+    Matrix _result{4};
+    Matrix AMatrix(float, float, float, float); //матрица переноса A
+
+public:
+    ManipulatorSolver() { _result = 1; }
+
+    void SolveDirectKinematic(List<Point>&); //решатель
+    void showResult();
 };
 
 void SayHello();                //приветствие
 void ShowMenu();                //описание меню
-bool Menu(Manager &manager);                    //реализация меню
-
-
+bool Menu(List<Point>&, ManipulatorSolver&);                    //реализация меню
 
 /*=============== ГЛАВНАЯ ФУНКЦИЯ ===============*/
 
@@ -40,12 +56,13 @@ int main()
     SayHello();
     ShowMenu();
 
-    Manager manager;
+    List<Point> manipulator;
+    ManipulatorSolver solver;
 
     while(true)
     {
-        if (!Menu(manager))
-            exit(0);
+        if (!Menu(manipulator, solver))
+            std::exit(0);
     }
 
     return 0;
@@ -57,76 +74,118 @@ int main()
 //ИНТЕРФЕЙС
 //---------
 
+void Point::input()
+{
+    std::cout << "Тип кинематической пары (0 - поступательная, 1 - вращательная): ";
+    std::cin >> _type;
+    if (_type == 0)
+    {
+        std::cout << "Введите параметры Денавита-Хартенберга:" << std::endl;
+        std::cout << "Параметр q = "; std::cin >> _q;
+        std::cout << "Параметр alpha = "; std::cin >> _alpha;
+        std::cout << "Параметр a = "; std::cin >> _a;
+        std::cout << "Параметр d - обобщённая координата" << std::endl; _d = -1;
+        *_oc = _d;
+    }
+    else
+    {
+        std::cout << "Введите параметры Денавита-Хартенберга:" << std::endl;
+        std::cout << "Параметр q - обобщённая координата" << std::endl; _q = -1;
+        std::cout << "Параметр alpha = "; std::cin >> _alpha;
+        std::cout << "Параметр a = "; std::cin >> _a;
+        std::cout << "Параметр d = "; std::cin >> _d;
+        *_oc = _q;
+    }
+}
+
+void Point::show()
+{
+    std::cout << (_type == 0 ? "Поступательная" : "Вращательная") << " кинематическая пара" << std::endl;
+
+    if (_q == -1)
+        std::cout << "Параметр q - обобщённая координата" << std::endl;
+    else
+        std::cout << "Параметр q = " << _q << std::endl;
+    std::cout << "Параметр alpha = " << _alpha << std::endl;
+    std::cout << "Параметр a = " << _a << std::endl;
+    if (_d == -1)
+        std::cout << "Параметр d - обобщённая координата" << std::endl;
+    else
+        std::cout << "Параметр d = " << _d << std::endl;
+}
+
 void SayHello()
 {
-    cout << "Привет!" << endl;
-    cout << "Ты запустил программу для решения прямой позиционной задачи." << endl;
-    cout << "Ниже ты видишь меню, чтобы сделать выбор просто введи номер пункта." << endl;
-    cout << "Например, если ты хочешь добавить новое звено манипулятору, то вводи 1." << endl;
-    cout << "Удачи!" << endl;
-    cout << endl;
+    std::cout << "Привет!" << std::endl;
+    std::cout << "Ты запустил программу для решения прямой позиционной задачи." << std::endl;
+    std::cout << "Ниже ты видишь меню, чтобы сделать выбор просто введи номер пункта." << std::endl;
+    std::cout << "Например, если ты хочешь добавить новое звено манипулятору, то вводи 1." << std::endl;
+    std::cout << "Удачи!" << std::endl;
+    std::cout << std::endl;
 }
 
 
 void ShowMenu()
 {
-    cout << "МЕНЮ" << endl;
-    cout << "==================================================" << endl;
-    cout << "1. Добавить новое звено" << endl;
-    cout << "2. Удалить звено" << endl;
-    cout << "3. Вывести список звеньев на экран" << endl;
-    cout << "4. Решить прямую позиционную задачу" << endl;
-    cout << "5. Решить прямую кинематическую задачу о скорости" << endl;
-    cout << "6. Выход из программы" << endl;
-    cout << "? - вывести меню на экран" << endl;
-    cout << "==================================================" << endl;
+    std::cout << "МЕНЮ" << std::endl;
+    std::cout << "==================================================" << std::endl;
+    std::cout << "1. Добавить новое звено" << std::endl;
+    std::cout << "2. Удалить звено" << std::endl;
+    std::cout << "3. Вывести список звеньев на экран" << std::endl;
+    std::cout << "4. Решить прямую позиционную задачу" << std::endl;
+    std::cout << "5. Показать матрицу Т" << std::endl;
+    std::cout << "6. Выход из программы" << std::endl;
+    std::cout << "? - вывести меню на экран" << std::endl;
+    std::cout << "==================================================" << std::endl;
 }
 
-bool Menu(Manager &manager)
+bool Menu(List<Point>& l, ManipulatorSolver& s)
 {
     char number;
 
-    cout << "Твой выбор: "; cin >> number;
+    std::cout << "Твой выбор: "; std::cin >> number;
 
     switch (number)
     {
     case '1':
     {
-        Element element;
+        Point element;
 
-        cout << "Звено " << manager.manipulator.NumberOfElements()+1 << endl;
+        std::cout << "Звено " << l.numberOfElements()+1 << std::endl;
 
-        element.point.Input();
-        manager.manipulator.Add(element);
+        element.input();
+        l.add(element);
 
-        cout << endl << "Звено успешно добавлено!" << endl;
+        std::cout << std::endl << "Звено успешно добавлено!" << std::endl;
 
         break;
     }
 
     case '2':
+    {
         int n;
 
-        cout << "Введите номер звена: "; cin >> n;
+        std::cout << "Введите номер звена: "; std::cin >> n;
 
-        manager.manipulator.Delete(n);
-        cout << endl << "Звено успешно удалено!" << endl;
+        l.del(n);
+        std::cout << std::endl << "Звено успешно удалено!" << std::endl;
 
         break;
+    }
 
     case '3':
-        manager.manipulator.Show();
+        l.show();
 
         break;
 
     case '4':
-        result = manager.manipulator.SolveDirectKinematic();
+        s.SolveDirectKinematic(l);
 
-        cout << "Матрица T успешно вычислена!" << endl;
+        std::cout << "Матрица T успешно вычислена!" << std::endl;
         break;
 
     case '5':
-        result.show();
+        s.showResult();
         break;
 
     case '6':
@@ -137,16 +196,21 @@ bool Menu(Manager &manager)
         break;
 
     default:
-        cout << "Ошибка!" << endl;
+        std::cout << "Ошибка!" << std::endl;
         break;
     }
 
-    cout << endl;
+    std::cout << std::endl;
 
     return 1;
 }
 
-Matrix Manipulator::AMatrix(float q, float alpha, float a, float d) //перенести в структуру звена
+void ManipulatorSolver::showResult()
+{
+    std::cout << _result.data_ << std::endl;
+}
+
+Matrix ManipulatorSolver::AMatrix(float q, float alpha, float a, float d) //перенести в структуру звена
 {
     Matrix A(4);
     A.data_[0] = cos(q); A.data_[1] = -cos(alpha)*sin(q);
@@ -160,174 +224,25 @@ Matrix Manipulator::AMatrix(float q, float alpha, float a, float d) //перен
     return A;
 }
 
-Matrix Manipulator::SolveDirectKinematic()
+void ManipulatorSolver::SolveDirectKinematic(List<Point>& list)
 {
     Matrix T(4);
     T = 1;
-    int i = 0;
-    Element *temp;
+    int i = 1;
+    Point* temp;
 
-    cout << "Введите обобщённые координаты" << endl;
+    std::cout << "Введите обобщённые координаты" << std::endl;
 
-    for (temp = Search(1); temp != NULL; temp = temp->Next)
+    do
     {
-        cout << "Звено " << i+1 << ": ";
-        if (temp->point.type == 1)
-            cin >> temp->point.q;
-        else
-            cin >> temp->point.d;
+        temp = list.search(i);
+        std::cout << "Звено " << i << ": ";
+            std::cin >> *temp->_oc;
 
-        cout << "T:" << endl;
-        T.show();
-        cout << "A:" << endl;
-        AMatrix(temp->point.q, temp->point.alpha, temp->point.a, temp->point.d).show();
-        T = T * AMatrix(temp->point.q, temp->point.alpha, temp->point.a, temp->point.d);
-        cout << "Res:" << endl;
-        T.show();
+        T = T * AMatrix(temp->get_q(), temp->get_alpha(), temp->get_a(), temp->get_d());
+
         i++;
     }
-
-    return T;
+    while (i <= list.numberOfElements());
+    _result = T;
 }
-
-
-/*=============== ЗАДУМКИ, КОТОРЫЕ ЕЩЁ МОГУТ ПРИГОДИТЬСЯ ===============*/
-
-/*const float q_value[] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-
-//Таймер
-class MyTime
-{
-private:
-    int time_ms;
-
-public:
-
-};
-
-//Датчики
-class Sensors
-{
-private:
-
-public:
-    //энкодеры
-    class encoders
-    {
-    private:
-        float q;
-        float Time;
-
-    public:
-        float getValue(int number)
-        {
-            q = q_value(number);
-            Time = MyTime.get("ms");
-            return q;
-        }
-    };
-};
-
-//манипулятор
-class Manipulator
-{
-private:
-    struct point;
-
-public:
-    int NumberOfPoints;
-    point points[NumberOfPoints];
-
-    void input()
-    {
-        cout << "Количество звеньев: ";
-        cin >> pointsnumber >> endl;
-        for (int i = 0; i < NumberOfPoints; i++)
-        {
-            cout << "Звено " << i << endl;
-            cout << "Тип кинематической пары (0 - поступательная, 1 - вращательная): ";
-            cin >> points[i].type >> endl;
-            if (points[i].type == 0)
-            {
-                cout << "Введите параметры Денавита-Хартенберга:" << endl;
-                cout << "Параметр q = ";
-                cin >> points[i].q >> endl;
-                cout << "Параметр alpha = ";
-                cin >> points[i].alpha >> endl;
-                cout << "Параметр a = ";
-                cin >> points[i].a >> endl;
-            }
-            else
-            {
-                cout << "Введите параметры Денавита-Хартенберга (если параметр" << endl;
-                cout << "Параметр alpha = ";
-                cin >> points[i].alpha >> endl;
-                cout << "Параметр a = ";
-                cin >> points[i].a >> endl;
-                cout << "Параметр d = ";
-                cin >> points[i].d >> endl;
-            }
-        }
-    }
-};
-
-class Solver : public List
-{
-public:
-
-
-AMatrix(int n)
-    {
-        Point point;
-        point = List.Search(n);
-        float A[4][4]={
-            {cos(point.q), -cos(point.alpha)*sin(q), sin(point.alpha)*sin(point.q), a*cos(point.q)},
-            {sin(point.q), cos(point.alpha)*cos(point.q), -sin(point.alpha)*cos(point.q), a*sin(point.q)},
-            {0, sin(point.aplha), cos(point.alpha), point.d},
-            {0, 0, 0, 1}
-        };
-        return A;
-    }
-
-    float TMatrix()
-    {
-        Point point = Head;
-        float T[4][4] = AMatrix(point);
-
-        while (point.Next)
-        {
-            T = T * AMatrix(point.Next);
-            point = point.Next;
-        }
-        return T;
-    }
-};
-
-//Решатель
-class RobotArmSolver
-{
-private:
-
-public:
-    //Вычисление матрицы перехода по известным обобщённым координатам
-    float SolveDirectKinematic(float* q)
-    {
-
-
-
-        T = q; //вычисление матрицы
-        return T;
-    }
-};
-
-//-------
-//ДАТЧИКИ
-//-------
-
-void Sensor::Input(Sensor encoder, List mp)
-{
-    cout << "Введите обобщённые координаты";
-    for (int i = 0; i < mp.NumberOfPoints; i++)
-        cout << "Звено " << i << ":"; cin >> encoder.data[i];
-}
-*/
