@@ -42,11 +42,22 @@ template<class A, class B> struct TemplateClass
 {
     A a;
     B b;
+
+    template<class X> X getElem()
+    {
+        if (std::is_same<X, A>())
+            return (X)a;
+
+        if (std::is_same<X, B>())
+            return (X)b;
+
+        throw 42;
+    }
 };
 
 template<class C> struct TemplateClass<C, C>
 {
-    C a;
+    C с;
 };
 
 template<> struct TemplateClass<float, float> //шаблон без параметров. Использует полную спецификацию
@@ -55,10 +66,18 @@ template<> struct TemplateClass<float, float> //шаблон без параме
     double b;
 };
 
+template<class A, class B> struct is_same : std::false_type
+{
+};
+
+template<class C> struct is_same<C, C> : std:: //не успел...
+{
+};
+
 void lab6()
 {
     TemplateClass<int, float> t1;
-    t1.a;
+    t1.getElem<int>();
 
     TemplateClass<int> t2;
     int tmp = t2.c;
