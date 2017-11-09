@@ -50,9 +50,11 @@ void Point::input()
 {
     std::cout << "Тип кинематической пары (0 - поступательная, 1 - вращательная): ";
     std::cin >> _type;
+    std::cout << std::endl;
+
     if (_type == 0)
     {
-        std::cout << "Введите параметры Денавита-Хартенберга:" << std::endl;
+        std::cout << "Введите параметры Денавита-Хартенберга:" << std::endl << std::endl;
         std::cout << "Параметр q = "; std::cin >> _q;
         std::cout << "Параметр alpha = "; std::cin >> _alpha;
         std::cout << "Параметр a = "; std::cin >> _a;
@@ -61,7 +63,7 @@ void Point::input()
     }
     else
     {
-        std::cout << "Введите параметры Денавита-Хартенберга:" << std::endl;
+        std::cout << "Введите параметры Денавита-Хартенберга:" << std::endl << std::endl;
         std::cout << "Параметр q - обобщённая координата" << std::endl; _q = -1;
         std::cout << "Параметр alpha = "; std::cin >> _alpha;
         std::cout << "Параметр a = "; std::cin >> _a;
@@ -169,7 +171,9 @@ bool Menu(List<Point>& l, ManipulatorSolver& s)
 {
     char number;
 
-    std::cout << "Твой выбор: "; std::cin >> number;
+    std::cout << std::endl << "Твой выбор: ";
+    std::cin >> number;
+    std::cout << std::endl;
 
     switch (number)
     {
@@ -200,11 +204,11 @@ bool Menu(List<Point>& l, ManipulatorSolver& s)
 
     case '3':
     {
-            int i = 0;
-            for (Point *temp = l.search(i); i <= l.numberOfElements(); i++)
+            int i = 1;
+            for (Point *temp = l.search(i); i <= l.numberOfElements(); temp = l.search(i))
             {
                 std::cout << "----------------------------------" << std::endl;
-                std::cout << "             Звено " << i << std::endl;
+                std::cout << "             Звено " << i++ << std::endl;
                 std::cout << "----------------------------------" << std::endl;
 
                 temp->show();
@@ -235,8 +239,6 @@ bool Menu(List<Point>& l, ManipulatorSolver& s)
         std::cout << "Ошибка!" << std::endl;
         break;
     }
-
-    std::cout << std::endl;
 
     return 1;
 }

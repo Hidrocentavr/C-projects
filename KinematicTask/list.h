@@ -21,7 +21,7 @@ public:
 
     int numberOfElements();     //возвращает количество элементов.
     bool empty();               //проверка списка на заполненность (true - если список пуст)
-    void add(T &element);  //метод для добавления нового звена в список
+    void add(T element);  //метод для добавления нового звена в список
 //    void show();                //метод для отображения списка
     T* search(int);      //поиск элемента в списке по номеру
     void del(int);         //метод для удаления элемента из списка по номеру
@@ -53,7 +53,7 @@ template <class T> bool List<T>::empty()
     return (Head_ == nullptr);
 }
 
-template <class T> void List<T>::add(T &element)
+template <class T> void List<T>::add(T element)
 {
     Element<T> *temp = new Element<T>;
 
