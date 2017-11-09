@@ -3,7 +3,7 @@
 
 template <class T> struct Element
 {
-    T* point;
+    T point;
     Element *Next; //указатель на следующий элемент списка
 };
 
@@ -21,8 +21,8 @@ public:
 
     int numberOfElements();     //возвращает количество элементов.
     bool empty();               //проверка списка на заполненность (true - если список пуст)
-    void add(T&);  //метод для добавления нового звена в список
-    void show();                //метод для отображения списка
+    void add(T &element);  //метод для добавления нового звена в список
+//    void show();                //метод для отображения списка
     T* search(int);      //поиск элемента в списке по номеру
     void del(int);         //метод для удаления элемента из списка по номеру
 
@@ -53,11 +53,11 @@ template <class T> bool List<T>::empty()
     return (Head_ == nullptr);
 }
 
-template <class T> void List<T>::add(T& element)
+template <class T> void List<T>::add(T &element)
 {
     Element<T> *temp = new Element<T>;
 
-    temp->point = &element;
+    temp->point = element;
     temp->Next = nullptr;
 
     num_++;
@@ -73,20 +73,7 @@ template <class T> void List<T>::add(T& element)
     Tail_ = temp;
 }
 
-template <class T> void List<T>::show()
-{
-    int i = 0;
-    for (Element<T> *temp = Head_; temp != nullptr; temp = temp->Next)
-    {
-        std::cout << "----------------------------------" << std::endl;
-        std::cout << "             Звено " << ++i << std::endl;
-        std::cout << "----------------------------------" << std::endl;
-
-        std::cout << temp->point << std::endl;
-    }
-}
-
-template <class T> T* List<T>::search(int n)
+template <class T> T *List<T>::search(int n)
 {
     Element<T> *temp = Head_;
     while(n > 1)
@@ -94,7 +81,7 @@ template <class T> T* List<T>::search(int n)
         temp = temp->Next;
         n--;
     }
-    return temp->point;
+    return &(temp->point);
 }
 
 template <class T> void List<T>::del(int n)
@@ -116,7 +103,7 @@ template <class T> void List<T>::del(int n)
         return;
     }
 
-    temp->point = search(n-1);
+    temp->point = *search(n-1);
 
     if (temp->Next != Tail_)
     {

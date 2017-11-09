@@ -5,9 +5,10 @@
 #include "matrix.h" //мои матрицы
 #include "list.h" //мои списки
 
-/*=============== ОСНОВНЫЕ ЭЛЕМЕНТЫ ПРОГРАММЫ ===============*/
+/////////////////////////////////////////////////////////////////////////////////////////////
+////*=========================== ОСНОВНЫЕ ЭЛЕМЕНТЫ ПРОГРАММЫ ===========================*////
+/////////////////////////////////////////////////////////////////////////////////////////////
 
-//звенья списка
 class Point
 {
 private:
@@ -16,9 +17,9 @@ private:
     float _alpha;
     float _a;
     float _d;
+    float* _oc;
 
 public:
-    float* _oc;
     void input();   //метод для ввода параметров звена
     void show();
     int get_type(){ return _type; }
@@ -26,6 +27,7 @@ public:
     float get_alpha(){ return _alpha; }
     float get_a(){ return _a; }
     float get_d(){ return _d; }
+    void inputGenCoor();
 };
 
 class ManipulatorSolver
@@ -36,43 +38,13 @@ private:
 
 public:
     ManipulatorSolver() { _result = 1; }
-
     void SolveDirectKinematic(List<Point>&); //решатель
     void showResult();
 };
 
-void SayHello();                //приветствие
-void ShowMenu();                //описание меню
-bool Menu(List<Point>&, ManipulatorSolver&);                    //реализация меню
-
-/*=============== ГЛАВНАЯ ФУНКЦИЯ ===============*/
-
-//List manipulator;
-
-int main()
-{
-//    setlocale(0, ""); NULL заменить на nullptr //конструктор для new () //size_t - только положительные числа
-
-    SayHello();
-    ShowMenu();
-
-    List<Point> manipulator;
-    ManipulatorSolver solver;
-
-    while(true)
-    {
-        if (!Menu(manipulator, solver))
-            std::exit(0);
-    }
-
-    return 0;
-}
-
-/*=============== ОПИСАНИЕ ФУНКЦИЙ, МЕТОДОВ, КОНСТРУКТОРОВ И ВСЕГО ОСТАЛЬНОГО ===============*/
-
-//---------
-//ИНТЕРФЕЙС
-//---------
+/////////////////////////////////////////////////////////////////////////////////////////////
+////*====================================== Point ======================================*////
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 void Point::input()
 {
@@ -100,7 +72,7 @@ void Point::input()
 
 void Point::show()
 {
-    std::cout << (_type == 0 ? "Поступательная" : "Вращательная") << " кинематическая пара" << std::endl;
+    std::cout << (this->_type == 0 ? "Поступательная" : "Вращательная") << " кинематическая пара" << std::endl;
 
     if (_q == -1)
         std::cout << "Параметр q - обобщённая координата" << std::endl;
@@ -113,6 +85,60 @@ void Point::show()
     else
         std::cout << "Параметр d = " << _d << std::endl;
 }
+
+void Point::inputGenCoor()
+{
+    std::cin >> *_oc;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+////*================================ ManipulatorSolver ================================*////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+void ManipulatorSolver::showResult()
+{
+    _result.show();
+}
+
+Matrix ManipulatorSolver::AMatrix(float q, float alpha, float a, float d) //перенести в структуру звена
+{
+    Matrix A(4);
+    A.data_[0] = cos(q); A.data_[1] = -cos(alpha)*sin(q);
+    A.data_[2] = sin(alpha)*sin(q); A.data_[3] = a*cos(q);
+    A.data_[4] = sin(q); A.data_[5] = cos(alpha)*cos(q);
+    A.data_[6] = -sin(alpha)*cos(q); A.data_[7] = a*sin(q);
+    A.data_[8] = 0; A.data_[9] = sin(alpha);
+    A.data_[10] = cos(alpha); A.data_[11] = d;
+    A.data_[12] = 0; A.data_[13] = 0; A.data_[14] = 0; A.data_[15] = 1;
+
+    return A;
+}
+
+void ManipulatorSolver::SolveDirectKinematic(List<Point>& list)
+{
+    Matrix T(4);
+    T = 1;
+    int i = 1;
+
+    std::cout << "Введите обобщённые координаты" << std::endl;
+
+    do
+    {
+        Point *temp = list.search(i);
+        std::cout << "Звено " << i << ": ";
+        temp->inputGenCoor();
+
+        T = T * AMatrix(temp->get_q(), temp->get_alpha(), temp->get_a(), temp->get_d());
+
+        i++;
+    }
+    while (i <= list.numberOfElements());
+    _result = T;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+////*===================================== Функции =====================================*////
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 void SayHello()
 {
@@ -149,12 +175,11 @@ bool Menu(List<Point>& l, ManipulatorSolver& s)
     {
     case '1':
     {
-        Point element;
-
+        Point el;
         std::cout << "Звено " << l.numberOfElements()+1 << std::endl;
 
-        element.input();
-        l.add(element);
+        el.input();
+        l.add(el);
 
         std::cout << std::endl << "Звено успешно добавлено!" << std::endl;
 
@@ -174,9 +199,19 @@ bool Menu(List<Point>& l, ManipulatorSolver& s)
     }
 
     case '3':
-        l.show();
+    {
+            int i = 0;
+            for (Point *temp = l.search(i); i <= l.numberOfElements(); i++)
+            {
+                std::cout << "----------------------------------" << std::endl;
+                std::cout << "             Звено " << i << std::endl;
+                std::cout << "----------------------------------" << std::endl;
+
+                temp->show();
+            }
 
         break;
+    }
 
     case '4':
         s.SolveDirectKinematic(l);
@@ -185,6 +220,7 @@ bool Menu(List<Point>& l, ManipulatorSolver& s)
         break;
 
     case '5':
+        std::cout << "Матрица Т:" << std::endl;
         s.showResult();
         break;
 
@@ -205,44 +241,23 @@ bool Menu(List<Point>& l, ManipulatorSolver& s)
     return 1;
 }
 
-void ManipulatorSolver::showResult()
+/////////////////////////////////////////////////////////////////////////////////////////////
+////*================================= ГЛАВНАЯ ФУНКЦИЯ =================================*////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+int main()
 {
-    std::cout << _result.data_ << std::endl;
-}
+    SayHello();
+    ShowMenu();
 
-Matrix ManipulatorSolver::AMatrix(float q, float alpha, float a, float d) //перенести в структуру звена
-{
-    Matrix A(4);
-    A.data_[0] = cos(q); A.data_[1] = -cos(alpha)*sin(q);
-    A.data_[2] = sin(alpha)*sin(q); A.data_[3] = a*cos(q);
-    A.data_[4] = sin(q); A.data_[5] = cos(alpha)*cos(q);
-    A.data_[6] = -sin(alpha)*cos(q); A.data_[7] = a*sin(q);
-    A.data_[8] = 0; A.data_[9] = sin(alpha);
-    A.data_[10] = cos(alpha); A.data_[11] = d;
-    A.data_[12] = 0; A.data_[13] = 0; A.data_[14] = 0; A.data_[15] = 1;
+    List<Point> manipulator;
+    ManipulatorSolver solver;
 
-    return A;
-}
-
-void ManipulatorSolver::SolveDirectKinematic(List<Point>& list)
-{
-    Matrix T(4);
-    T = 1;
-    int i = 1;
-    Point* temp;
-
-    std::cout << "Введите обобщённые координаты" << std::endl;
-
-    do
+    while(true)
     {
-        temp = list.search(i);
-        std::cout << "Звено " << i << ": ";
-            std::cin >> *temp->_oc;
-
-        T = T * AMatrix(temp->get_q(), temp->get_alpha(), temp->get_a(), temp->get_d());
-
-        i++;
+        if (!Menu(manipulator, solver))
+            std::exit(0);
     }
-    while (i <= list.numberOfElements());
-    _result = T;
+
+    return 0;
 }

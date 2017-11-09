@@ -1,7 +1,6 @@
 #include <iostream>
+#include <stdio.h>
 #include "matrix.h"
-
-using namespace std;
 
 Matrix::Matrix() : rows_ (0), cols_ (0), data_ (NULL)
 {
@@ -11,7 +10,7 @@ Matrix::Matrix() : rows_ (0), cols_ (0), data_ (NULL)
 Matrix::Matrix(int n) : rows_ (n), cols_ (n)
 {
     if (n == 0)
-        cout << "Matrix constructor has 0 size" << endl;
+        std::cout << "Matrix constructor has 0 size" << std::endl;
 
     data_ = new double[n * n];
 }
@@ -19,7 +18,7 @@ Matrix::Matrix(int n) : rows_ (n), cols_ (n)
 Matrix::Matrix(int rows, int cols) : rows_ (rows), cols_ (cols)
 {
     if (rows == 0 || cols == 0)
-        cout << "Matrix constructor has 0 size" << endl;
+        std::cout << "Matrix constructor has 0 size" << std::endl;
 
     data_ = new double[rows * cols];
 }
@@ -43,7 +42,7 @@ Matrix Matrix::operator= (int k)
     }
     else
     {
-        cout << "Матрица не квадратная" << endl;
+        std::cout << "Матрица не квадратная" << std::endl;
     }
 
     return *this;
@@ -59,7 +58,7 @@ Matrix Matrix::operator= (Matrix m)
     }
     else
     {
-        cout << "Размеры матриц не совпадают" << endl;
+        std::cout << "Размеры матриц не совпадают" << std::endl;
     }
 
     return *this;
@@ -89,7 +88,7 @@ void Matrix::show()
     for (int i = 0; i < rows_; i++)
     {
         for (int j = 0; j < cols_; j++)
-            cout << data_[cols_*i+j] << " ";
-        cout << endl;
+            printf("%-10.3lf", data_[cols_*i+j]);
+        std::cout << std::endl;
     }
 }
