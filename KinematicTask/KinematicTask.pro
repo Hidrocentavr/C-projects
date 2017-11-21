@@ -16,8 +16,7 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    matrix.cpp \
-    gazebo.cpp
+    matrix.cpp
 
 HEADERS += \
     matrix.h \
